@@ -8,12 +8,19 @@ namespace CosmosDBTestAgentConsole
     class Program
     {
         static DocumentClient _client;
+        static string[] indic = { "|", "/", "-", "\\" };
+        static int indecInd = 0;
         static void Main(string[] args)
         {
             var endPoint = Environment.GetEnvironmentVariable("COSMOSDB_Endpoint");
             var key = Environment.GetEnvironmentVariable("COSMOSDB_Key");
 
             _client = new DocumentClient(new Uri(endPoint), key);
+
+            if(args.Length ==0)
+            {
+                Console.WriteLine("Please provide these arguments: [R/W] [No Items] [Database ID] [CollectionId] f.e.: R 10000 MyDB MyCollection");
+            }
 
             switch (args[0])
             {
@@ -39,7 +46,7 @@ namespace CosmosDBTestAgentConsole
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            var docs = await _client.ReadDocumentFeedAsync(collectionLink, new FeedOptions { MaxItemCount = 100000 });
+            var docs = await _client.ReadDocumentFeedAsync(collectionLink, new FeedOptions { MaxItemCount = noItems });
 
             foreach (var d in docs)
             {
@@ -94,16 +101,11 @@ namespace CosmosDBTestAgentConsole
             var randomOrderDocuments = orders.Generate(noItems);
 
             Console.WriteLine();
-            string[] indic = { "|", "/", "-", "\\" };
-            int indecInd = 0;
+            
 
             stopWatch.Start();
             foreach (Order order in randomOrderDocuments)
             {
-                Console.Write("\b");
-                Console.Write(indic[indecInd]);
-                if (indecInd == 3) { indecInd = 0; } else { indecInd++; }
-
                 _client.CreateDocumentAsync(
                 UriFactory.CreateDocumentCollectionUri(databaseId, collectionId), order);
             }

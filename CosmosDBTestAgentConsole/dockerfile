@@ -1,0 +1,4 @@
+FROM microsoft/dotnet:latest
+COPY /bin/Release/netcoreapp2.0/ /root/
+
+ENTRYPOINT dotnet /root/CosmosDBTestAgentConsole.dll W 1000 VJOrders Orders
